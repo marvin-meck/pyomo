@@ -14,7 +14,10 @@ import os.path
 from pyomo.common.collections import Bunch
 from pyomo.dataportal.factory import DataManagerFactory
 from pyomo.dataportal.process_data import _process_include
-
+from pyomo.core import (
+    Set,
+    Param
+)
 
 @DataManagerFactory.register("dat", "Pyomo data command file interface")
 class PyomoDataCommands(object):
@@ -52,7 +55,19 @@ class PyomoDataCommands(object):
         This function does nothing, because we cannot write to a *.dat file.
         """
         with open(self.filename, 'w') as OUTPUT:
-            raise NotImplementedError
+            
+            for ns in data.keys():
+                if ns is not None:
+                    OUTPUT.write(f"namespace {ns}"+"{")
+
+                for the_set in model.component_map(Set):
+                    _write_set(OUTPUT,data[ns],the_set)
+
+                for the_param in model.component_map(Param):
+                    raise NotImplementedError
+
+                if ns is not None:
+                    OUTPUT.write("}")
 
     def process(self, model, data, default):
         """
@@ -62,3 +77,19 @@ class PyomoDataCommands(object):
 
     def clear(self):
         self._info = []
+
+def  _write_set(ostream, data, name):
+    """writes set component to ostream
+    """
+    for key,vals in data[name].items():
+        if key is None:
+            # regular set
+            ostream.write("set {} := ".format(name))
+        else:
+            # indexed set
+            ostream.write("set {}[{}] := ".format(name,key))
+
+        for val in vals:
+            ostream.write(f"{val} \n")
+        else:
+            ostream.write(";\n\n")
