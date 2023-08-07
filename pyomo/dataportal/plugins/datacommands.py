@@ -60,11 +60,14 @@ class PyomoDataCommands(object):
                 if ns is not None:
                     OUTPUT.write(f"namespace {ns}"+"{")
 
-                for the_set in model.component_map(Set):
-                    _write_set(OUTPUT,data[ns],the_set)
+                for key in data[ns].keys():
+                    # _comp = model.find_component(key)
+                    if key in model.component_map(Set):
+                        _write_set(OUTPUT,data[ns],key)
 
-                for the_param in model.component_map(Param):
-                    raise NotImplementedError
+                    if key in model.component_map(Param):
+                        _write_param(OUTPUT,data[ns],key)
+                        # raise NotImplementedError
 
                 if ns is not None:
                     OUTPUT.write("}")
@@ -82,6 +85,10 @@ def  _write_set(ostream, data, name):
     """writes set component to ostream
     """
     for key,vals in data[name].items():
+        
+        # TODO: vals must be list, tuple or set?!
+        # else raise ValueError("")
+
         if key is None:
             # regular set
             ostream.write("set {} := ".format(name))
@@ -93,3 +100,18 @@ def  _write_set(ostream, data, name):
             ostream.write(f"{val} \n")
         else:
             ostream.write(";\n\n")
+
+def _write_param(ostream, data, name):
+    """writes param data command to ostream
+    """
+    ostream.write("param {} := ".format(name))
+
+    for key,val in data[name].items():
+        if key is None:
+            # TODO: val must be scalar or string
+            # else raise ValueError("")
+            ostream.write("{}".format(val))
+        else:
+            ostream.write("{} {} \n".format(key,val))
+    else:
+        ostream.write(";\n\n")
