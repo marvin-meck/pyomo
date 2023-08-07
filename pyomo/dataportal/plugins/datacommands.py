@@ -35,8 +35,6 @@ class PyomoDataCommands(object):
     def open(self):
         if self.filename is None:  # pragma:nocover
             raise IOError("No filename specified")
-        if not os.path.exists(self.filename):  # pragma:nocover
-            raise IOError("Cannot find file '%s'" % self.filename)
 
     def close(self):
         pass
@@ -46,7 +44,8 @@ class PyomoDataCommands(object):
         This function does nothing, since executing Pyomo data commands
         both reads and processes the data all at once.
         """
-        pass
+        if not os.path.exists(self.filename):  # pragma:nocover
+            raise IOError("Cannot find file '%s'" % self.filename)
 
     def write(self, data):  # pragma:nocover
         """
