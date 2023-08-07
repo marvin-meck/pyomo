@@ -215,7 +215,13 @@ class DataPortal(object):
         #
         # Write from self._data
         #
-        self._data_manager.write(self._data)
+        tmp = self._data_manager.filename.split('.')[-1]
+        if tmp == "dat":
+            if _model is None:
+                raise TypeError("Missing mandatory keyword argument 'model'")
+            self._data_manager.write(self._model, self._data)
+        else:
+            self._data_manager.write(self._data)
         #
         # Disconnect
         #

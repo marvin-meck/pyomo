@@ -47,11 +47,12 @@ class PyomoDataCommands(object):
         if not os.path.exists(self.filename):  # pragma:nocover
             raise IOError("Cannot find file '%s'" % self.filename)
 
-    def write(self, data):  # pragma:nocover
+    def write(self, model, data):  # pragma:nocover
         """
         This function does nothing, because we cannot write to a *.dat file.
         """
-        pass
+        with open(self.filename, 'w') as OUTPUT:
+            raise NotImplementedError
 
     def process(self, model, data, default):
         """
